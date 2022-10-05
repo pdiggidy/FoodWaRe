@@ -1,7 +1,10 @@
 from flask import Flask, request, jsonify, abort
 from flask_restful import Api, Resource, reqparse, http_status_message
 import pandas as pd
+import sqlite3
 
+
+conn = sqlite3.connect("Barcodes")
 db = pd.read_pickle("fresh_dataframe.pickle")
 
 app = Flask(__name__)
@@ -16,6 +19,8 @@ class ProductInfo(Resource):
     def get(self):
         arg = args.parse_args()
         try:
+            ##TODO: CHANGE THIS TO SQL QUERY
+            ##TODO: ADD SHA AUTH
             products = db.loc[db["barcode"]==int(arg["barcode"])][["barcode","id","certainty"]]
             return {'barcode': arg["barcode"], "products" : products.to_dict('r')}, 200
         except KeyError as e:
@@ -24,6 +29,7 @@ class ProductInfo(Resource):
 
     def post(self):
         arg = args.parse_args()
+        ##TODO: CHANGE THIS TO SQL QUERY
         if arg["barcode"] in db["barcode"]:
             if arg["id"] in db.loc["barcode","id"]:
                 cert = db.loc["barcode","certainty"]
