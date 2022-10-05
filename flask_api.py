@@ -75,6 +75,10 @@ class ProductInfo(Resource):
 
 api.add_resource(ProductInfo, "/api/v1")
 
+@app.route('/')
+def hello():
+    return "test"
+
 if __name__ == "__main__":
     #print(db)
     app.run(debug=True)
