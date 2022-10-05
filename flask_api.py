@@ -22,15 +22,15 @@ class ProductInfo(Resource):
             conn = sqlite3.connect("Barcodes.sql")
             cur = conn.cursor()
 
-            data = cur.execute(f'SELECT * FROM barcodes WHERE barcode = "871039852411"')
+            data = cur.execute(f'SELECT * FROM barcodes WHERE barcode = {str(arg["barcode"])}')
             products = data.fetchall()
             return_payload = []
             for prod in products:
                 return_payload.append({"barcode": prod[1], "id": prod[2], "certainty":prod[3]})
             conn.close()
             try:
-                return {'barcode': arg["barcode"] , "products":[{"barcode": prod[1], "id": prod[2], "certainty":prod[3]} for prod in products]}, 200
-            except KeyError as e:
+                return {'barcode': arg["barcode"], "products":[{"barcode": prod[1], "id": prod[2], "certainty":prod[3]} for prod in products]}, 200
+            except IndexError as e:
                 conn.close()
                 abort(400)
 
@@ -42,14 +42,34 @@ class ProductInfo(Resource):
         if True:#(sha256(arg["key"]) == secrets.key):
             ##TODO: CHANGE THIS TO SQL QUERY
             ##TODO: ADD SHA AUTH
-            if arg["barcode"] in db["barcode"]:
-                if arg["id"] in db.loc["barcode","id"]:
-                    cert = db.loc["barcode","certainty"]
-                    cert[db.loc["barcode", "id"].index(arg["id"])] = cert[db.loc["barcode", "id"].index(arg["id"])] +1
-                    db.loc["barcode", "certainty"] = cert
-            else:
-                pd.concat([db,pd.DataFrame({"barcode":[arg["barcode"]],"id":[arg["id"]],"certainty":[1]})])
-            return {"barcode": arg["barcode"], "id":arg["id"]}
+
+            conn = sqlite3.connect("Barcodes.sql")
+            cur = conn.cursor()
+
+            data = cur.execute(f'SELECT * FROM barcodes WHERE barcode={arg["barcode"]}')
+            try:
+                info = data.fetchall()[0]
+                id_str = info[2]
+                cert = info[3]
+                if str(arg["id"]) in id_str.split(","):
+                    split_cert = [int(x) for x in str(cert).split(",")]
+                    split_id = [int(y) for y in id_str.split(",")]
+                    split_cert[split_id.index(int(arg["id"]))] = split_cert[split_id.index(int(arg["id"]))] + 1
+                    cert = ','.join(map(str, split_cert))
+
+                else:
+                    id_str = id_str + f",{str(arg['id'])}"
+                    cert = cert + ",1"
+                cur.execute(f'UPDATE barcodes SET id={id_str}, certainty={cert} WHERE barcode = {str(arg["barcode"])}')
+                conn.commit()
+                conn.close()
+                return {"barcode": arg['barcode'], "id": arg["id"]}, 200
+            except IndexError as e:
+                cur.execute(f'INSERT INTO barcodes (barcode, id, certainty) VALUES ({arg["barcode"]},{arg["id"]},1)')
+                conn.commit()
+                conn.close()
+                return {"barcode": arg['barcode'], "id": arg["id"]}, 200
+
         else:
             abort(401)
 
