@@ -77,7 +77,8 @@ api.add_resource(ProductInfo, "/api/v1")
 
 @app.route('/')
 def hello():
-    return "test"
+    return """<!DOCTYPE html>
+           <embed src="Api Version 1 specification.pdf" width="100%" height="800px" /> """
 
 if __name__ == "__main__":
     #print(db)
