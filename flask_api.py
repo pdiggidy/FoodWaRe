@@ -1,3 +1,4 @@
+import flask
 from flask import Flask, request, jsonify, abort
 from flask_restful import Api, Resource, reqparse, http_status_message
 import pandas as pd
@@ -76,8 +77,7 @@ api.add_resource(ProductInfo, "/api/v1")
 
 @app.route('/')
 def hello():
-    return """<!DOCTYPE html>
-           <embed src="/ApiVersion1specification.pdf" width="100%" height="800px" /> """
+    return flask.send_file("files/APIVersion1specification.pdf")
 
 if __name__ == "__main__":
     #print(db)
