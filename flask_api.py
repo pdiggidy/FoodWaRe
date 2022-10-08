@@ -6,32 +6,30 @@ import sqlite3
 from hashlib import sha256
 import key
 
-
 app = Flask(__name__)
 api = Api(app)
 
 args = reqparse.RequestParser()
 args.add_argument("barcode", type=int, help="barcode number")
 args.add_argument("id", type=str)
-args.add_argument("key",type=int, required=True)
+args.add_argument("key", type=int, required=True)
 
 
 class ProductInfo(Resource):
     def get(self):
         arg = args.parse_args()
-        if True:#sha256(arg["key"]) == key.key:
+        if True:  # sha256(arg["key"]) == key.key:
             conn = sqlite3.connect("Barcodes.sql")
             cur = conn.cursor()
 
-            data = cur.execute(f'SELECT * FROM barcodes WHERE barcode = {str(arg["barcode"])}')
+            data = cur.execute(f'SELECT * FROM barcodes WHERE barcode = {int(arg["barcode"])}')
             products = data.fetchall()
-            return_payload = []
-            for prod in products:
-                return_payload.append({"barcode": prod[1], "id": prod[2], "certainty":prod[3]})
+            products=list(products)[0]
             conn.close()
             try:
-                return {'barcode': arg["barcode"], "products":[{"barcode": prod[1], "id": prod[2], "certainty":prod[3]} for prod in products]}, 200
+                return {'barcode': arg["barcode"], "products": {"id": products[2], "certainty": products[3]}}, 200
             except IndexError as e:
+                return "broken"
                 conn.close()
                 abort(400)
 
@@ -40,8 +38,7 @@ class ProductInfo(Resource):
 
     def post(self):
         arg = args.parse_args()
-        if True:#(sha256(arg["key"]) == secrets.key):
-
+        if True:  # (sha256(arg["key"]) == secrets.key):
 
             conn = sqlite3.connect("Barcodes.sql")
             cur = conn.cursor()
@@ -51,15 +48,8 @@ class ProductInfo(Resource):
                 info = data.fetchall()[0]
                 id_str = info[2]
                 cert = info[3]
-                if str(arg["id"]) in id_str.split(","):
-                    split_cert = [int(x) for x in str(cert).split(",")]
-                    split_id = [int(y) for y in id_str.split(",")]
-                    split_cert[split_id.index(int(arg["id"]))] = split_cert[split_id.index(int(arg["id"]))] + 1
-                    cert = ','.join(map(str, split_cert))
-
-                else:
-                    id_str = id_str + f",{str(arg['id'])}"
-                    cert = cert + ",1"
+                if id_str == info[2]:
+                    cert = int(cert) + 1
                 cur.execute(f'UPDATE barcodes SET id={id_str}, certainty={cert} WHERE barcode = {str(arg["barcode"])}')
                 conn.commit()
                 conn.close()
@@ -73,13 +63,16 @@ class ProductInfo(Resource):
         else:
             abort(401)
 
+
 api.add_resource(ProductInfo, "/api/v1")
+
 
 @app.route('/')
 def hello():
     return flask.send_file("files/APIVersion1specification.pdf")
 
+
 if __name__ == "__main__":
-    #print(db)
+    # print(db)
     app.run(debug=True)
-    #db.to_pickle("fresh_dataframe.pickle")
+    # db.to_pickle("fresh_dataframe.pickle")
