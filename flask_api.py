@@ -79,7 +79,11 @@ def barcode_info(barcode):
 
         data = cur.execute(f'SELECT * FROM barcodes WHERE barcode = {int(barcode)}')
         products = data.fetchall()
-        products = list(products)[0]
+        try:
+            products = list(products)[0]
+        except IndexError as e:
+            conn.close()
+            return "Barcode does not exist", 400
         conn.close()
         try:
             return {'barcode': barcode, "products": {"id": products[2], "certainty": products[3]}}, 200
