@@ -6,6 +6,8 @@ import sqlite3
 from hashlib import sha256
 import key
 import json
+import os
+import psycopg2
 
 app = Flask(__name__)
 api = Api(app)
