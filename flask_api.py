@@ -70,7 +70,7 @@ class ProductInfo(Resource):
             except:
                 id_dict = {arg["id"]: 1}
                 cur.execute(
-                    f'INSERT INTO barcodes (barcode, id) VALUES ({arg["barcode"]},"{json.dumps(id_dict)}")')
+                    f'''INSERT INTO barcodes (barcode, id) VALUES ({arg["barcode"]},'{json.dumps(id_dict)}')''')
                 conn.commit()
                 conn.close()
                 return {"barcode": arg['barcode'], "id": arg["id"]}, 200
