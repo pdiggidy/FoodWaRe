@@ -69,7 +69,7 @@ api.add_resource(ProductInfo, "/api/v1")
 
 @app.route('/')
 def hello():
-    return flask.send_file("files/APIVersion1specification.pdf")
+    return "test"
 
 
 if __name__ == "__main__":
