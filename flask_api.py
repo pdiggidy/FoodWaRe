@@ -16,25 +16,25 @@ args.add_argument("key", type=int, required=True)
 
 
 class ProductInfo(Resource):
-    def get(self):
-        arg = args.parse_args()
-        if True:  # sha256(arg["key"]) == key.key:
-            conn = sqlite3.connect("Barcodes.sql")
-            cur = conn.cursor()
-
-            data = cur.execute(f'SELECT * FROM barcodes WHERE barcode = {int(arg["barcode"])}')
-            products = data.fetchall()
-            products=list(products)[0]
-            conn.close()
-            try:
-                return {'barcode': arg["barcode"], "products": {"id": products[2], "certainty": products[3]}}, 200
-            except IndexError as e:
-                return "broken"
-                conn.close()
-                abort(400)
-
-        else:
-            abort(401)
+    # def get(self):
+    #     arg = args.parse_args()
+    #     if True:  # sha256(arg["key"]) == key.key:
+    #         conn = sqlite3.connect("Barcodes.sql")
+    #         cur = conn.cursor()
+    #
+    #         data = cur.execute(f'SELECT * FROM barcodes WHERE barcode = {int(arg["barcode"])}')
+    #         products = data.fetchall()
+    #         products=list(products)[0]
+    #         conn.close()
+    #         try:
+    #             return {'barcode': arg["barcode"], "products": {"id": products[2], "certainty": products[3]}}, 200
+    #         except IndexError as e:
+    #             return "broken"
+    #             conn.close()
+    #             abort(400)
+    #
+    #     else:
+    #         abort(401)
 
     def post(self):
         arg = args.parse_args()
@@ -70,6 +70,23 @@ api.add_resource(ProductInfo, "/api/v1")
 @app.route('/')
 def hello():
     return "test"
+
+@app.route('/api/v1/products/<int:barcode>')
+def barcode_info(barcode):
+    if True:  # sha256(arg["key"]) == key.key:
+        conn = sqlite3.connect("Barcodes.sql")
+        cur = conn.cursor()
+
+        data = cur.execute(f'SELECT * FROM barcodes WHERE barcode = {int(barcode)}')
+        products = data.fetchall()
+        products = list(products)[0]
+        conn.close()
+        try:
+            return {'barcode': barcode, "products": {"id": products[2], "certainty": products[3]}}, 200
+        except IndexError as e:
+            return "broken"
+            conn.close()
+            abort(400)
 
 
 if __name__ == "__main__":
