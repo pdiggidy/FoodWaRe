@@ -71,7 +71,7 @@ api.add_resource(ProductInfo, "/api/v1")
 def hello():
     return flask.send_file("files/APIVersion1specification.pdf")
 
-@app.route('/api/v1/<int:barcode>')
+@app.route('/api/v1/products/<int:barcode>')
 def barcode_info(barcode):
     conn = sqlite3.connect("Barcodes.sql")
     cur = conn.cursor()
