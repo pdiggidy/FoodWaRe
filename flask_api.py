@@ -53,25 +53,27 @@ class ProductInfo(Resource):
 
             data = cur.execute(f'SELECT id FROM barcodes WHERE barcode={arg["barcode"]}')
             ids = dict()
-            if len(data.fetchall()) == 0:
-                id_dict = {arg["id"]:1}
-                cur.execute(f'INSERT INTO barcodes (barcode, id, certainty) VALUES ({arg["barcode"]},{json.dumps(id_dict)})')
+
+            try:
+                for s in data.fetchall():
+                    s = json.loads(s[0])
+                    ids[list(s.keys())[0]]= list(s.values())[0]
+                try:
+                    ids[str(arg["id"])] = ids[str(arg["id"])]+1
+                except KeyError as e:
+                    ids[str(arg["id"])] = 1
+                query = f'''UPDATE barcodes SET id='{json.dumps(ids)}' WHERE barcode = {str(arg["barcode"])}'''
+                cur.execute(query)
+                conn.commit()
+                conn.close()
+                return  {"barcode": arg['barcode'], "id": arg["id"]}, 200
+            except:
+                id_dict = {arg["id"]: 1}
+                cur.execute(
+                    f'INSERT INTO barcodes (barcode, id, certainty) VALUES ({arg["barcode"]},{json.dumps(id_dict)})')
                 conn.commit()
                 conn.close()
                 return {"barcode": arg['barcode'], "id": arg["id"]}, 200
-
-            for s in data.fetchall():
-                s = json.loads(s[0])
-                ids[list(s.keys())[0]]= list(s.values())[0]
-            try:
-                ids[str(arg["id"])] = ids[str(arg["id"])]+1
-            except KeyError as e:
-                ids[str(arg["id"])] = 1
-            query = f'''UPDATE barcodes SET id='{json.dumps(ids)}' WHERE barcode = {str(arg["barcode"])}'''
-            cur.execute(query)
-            conn.commit()
-            conn.close()
-            return  {"barcode": arg['barcode'], "id": arg["id"]}, 200
 
         else:
             abort(401)
