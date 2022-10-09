@@ -5,6 +5,7 @@ import pandas as pd
 import sqlite3
 from hashlib import sha256
 import key
+import json
 
 app = Flask(__name__)
 api = Api(app)
@@ -43,22 +44,27 @@ class ProductInfo(Resource):
             conn = sqlite3.connect("Barcodes.sql")
             cur = conn.cursor()
 
-            data = cur.execute(f'SELECT * FROM barcodes WHERE barcode={arg["barcode"]}')
+            data = cur.execute(f'SELECT id FROM barcodes WHERE barcode={arg["barcode"]}')
+            ids = dict()
+            if len(data.fetchall()) == 0:
+                id_dict = {arg["id"]:1}
+                cur.execute(f'INSERT INTO barcodes (barcode, id, certainty) VALUES ({arg["barcode"]},{json.dumps(id_dict)})')
+                conn.commit()
+                conn.close()
+                return {"barcode": arg['barcode'], "id": arg["id"]}, 200
+
+            for s in data.fetchall():
+                s = json.loads(s[0])
+                ids[list(s.keys())[0]]= list(s.values())[0]
             try:
-                info = data.fetchall()[0]
-                id_str = info[2]
-                cert = info[3]
-                if id_str == info[2]:
-                    cert = int(cert) + 1
-                cur.execute(f'UPDATE barcodes SET id={id_str}, certainty={cert} WHERE barcode = {str(arg["barcode"])}')
-                conn.commit()
-                conn.close()
-                return {"barcode": arg['barcode'], "id": arg["id"]}, 200
-            except IndexError as e:
-                cur.execute(f'INSERT INTO barcodes (barcode, id, certainty) VALUES ({arg["barcode"]},{arg["id"]},1)')
-                conn.commit()
-                conn.close()
-                return {"barcode": arg['barcode'], "id": arg["id"]}, 200
+                ids[str(arg["id"])] = ids[str(arg["id"])]+1
+            except KeyError as e:
+                ids[str(arg["id"])] = 1
+            query = f'''UPDATE barcodes SET id='{json.dumps(ids)}' WHERE barcode = {str(arg["barcode"])}'''
+            cur.execute(query)
+            conn.commit()
+            conn.close()
+            return  {"barcode": arg['barcode'], "id": arg["id"]}, 200
 
         else:
             abort(401)
@@ -71,26 +77,30 @@ api.add_resource(ProductInfo, "/api/v1")
 def hello():
     return "test"
 
+
 @app.route('/api/v1/products/<int:barcode>')
 def barcode_info(barcode):
     if True:  # sha256(arg["key"]) == key.key:
         conn = sqlite3.connect("Barcodes.sql")
         cur = conn.cursor()
 
-        data = cur.execute(f'SELECT * FROM barcodes WHERE barcode = {int(barcode)}')
+        data = cur.execute(f'SELECT id FROM barcodes WHERE barcode = {barcode}')
         products = data.fetchall()
         try:
             products = list(products)[0]
         except IndexError as e:
             conn.close()
             return "Barcode does not exist", 400
+        ids = {}
+        for s in products:
+            try:
+                s = json.loads(s)
+                ids[list(s.keys())[0]] = list(s.values())[0]
+            except json.JSONDecodeError as e:
+                return s
+        #id_list = [f'{{{k}}}:{value}' for k, value in ids.items()]
         conn.close()
-        try:
-            return {"barcode": barcode, "products": {"id": products[2], "certainty": products[3]}}, 200
-        except IndexError as e:
-            return "broken"
-            conn.close()
-            abort(400)
+        return {"barcode": barcode, "products": [json.dumps(ids)]}, 200
 
 
 if __name__ == "__main__":
