@@ -14,8 +14,8 @@ api = Api(app)
 
 DATABASE_URL = "postgres://fwahrxcyduwmlg:a7b249158e16deb53ce3127fa7f713ecb2264d29eaf0ddd2cdda0a89eb84dde4@ec2-176-34-215-248.eu-west-1.compute.amazonaws.com:5432/d15j4vkuqikc2c"
 
-#conn = psycopg2.connect(DATABASE_URL, sslmode="require")
-#cur = conn.cursor()
+# conn = psycopg2.connect(DATABASE_URL, sslmode="require")
+# cur = conn.cursor()
 
 args = reqparse.RequestParser()
 args.add_argument("barcode", type=int, help="barcode number")
@@ -51,22 +51,22 @@ class ProductInfo(Resource):
             conn = psycopg2.connect(DATABASE_URL, sslmode="require")
             cur = conn.cursor()
 
-            data = cur.execute(f'SELECT id FROM barcodes WHERE barcode={arg["barcode"]}')
+            cur.execute(f'SELECT id FROM barcodes WHERE barcode={arg["barcode"]}')
             ids = dict()
 
             try:
-                for s in data.fetchall():
+                for s in cur.fetchall():
                     s = json.loads(s[0])
-                    ids[list(s.keys())[0]]= list(s.values())[0]
+                    ids[list(s.keys())[0]] = list(s.values())[0]
                 try:
-                    ids[str(arg["id"])] = ids[str(arg["id"])]+1
+                    ids[str(arg["id"])] = ids[str(arg["id"])] + 1
                 except KeyError as e:
                     ids[str(arg["id"])] = 1
-                query = f'''UPDATE barcodes SET id='{json.dumps(ids)}' WHERE barcode = {str(arg["barcode"])}'''
+                query = f'''UPDATE barcodes SET id='{json.dumps(ids)}' WHERE barcode = {arg["barcode"]}'''
                 cur.execute(query)
                 conn.commit()
                 conn.close()
-                return  {"barcode": arg['barcode'], "id": arg["id"]}, 200
+                return {"barcode": arg['barcode'], "id": arg["id"]}, 200
             except:
                 id_dict = {arg["id"]: 1}
                 cur.execute(
@@ -93,8 +93,8 @@ def barcode_info(barcode):
         conn = psycopg2.connect(DATABASE_URL, sslmode="require")
         cur = conn.cursor()
 
-        data = cur.execute(f'SELECT id FROM barcodes WHERE barcode = {barcode}')
-        products = data.fetchall()
+        cur.execute(f'SELECT id FROM barcodes WHERE barcode = {barcode}')
+        products = cur.fetchall()
         try:
             products = list(products)[0]
         except IndexError as e:
@@ -107,7 +107,7 @@ def barcode_info(barcode):
                 ids[list(s.keys())[0]] = list(s.values())[0]
             except json.JSONDecodeError as e:
                 return s
-        #id_list = [f'{{{k}}}:{value}' for k, value in ids.items()]
+        # id_list = [f'{{{k}}}:{value}' for k, value in ids.items()]
         conn.close()
         return {"barcode": barcode, "products": json.dumps(ids)}, 200
 
