@@ -12,3 +12,4 @@ tornado==6.1
 wheel==0.37.0
 gunicorn
 psycopg2-binary
+os
