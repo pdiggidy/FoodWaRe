@@ -100,7 +100,7 @@ def barcode_info(barcode):
                 return s
         #id_list = [f'{{{k}}}:{value}' for k, value in ids.items()]
         conn.close()
-        return {"barcode": barcode, "products": [json.dumps(ids)]}, 200
+        return {"barcode": barcode, "products": json.dumps(ids)}, 200
 
 
 if __name__ == "__main__":
