@@ -5,6 +5,7 @@ import pandas as pd
 import sqlite3
 from hashlib import sha256
 import key
+import json
 
 app = Flask(__name__)
 api = Api(app)
@@ -84,9 +85,11 @@ def barcode_info(barcode):
         except IndexError as e:
             conn.close()
             return "Barcode does not exist", 400
+        with open("IngredientsWithTypes.json") as file:
+            file = json.loads(file.read())
         conn.close()
         try:
-            return {'barcode': barcode, "products": {"id": products[2], "certainty": products[3]}}, 200
+            return {'barcode': barcode, "products": {"id": products[2], "certainty": products[3], "type": file[products[2][1]]}}, 200
         except IndexError as e:
             return "broken"
             conn.close()
