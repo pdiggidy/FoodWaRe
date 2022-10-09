@@ -14,8 +14,8 @@ api = Api(app)
 
 DATABASE_URL = os.environ["postgres://fwahrxcyduwmlg:a7b249158e16deb53ce3127fa7f713ecb2264d29eaf0ddd2cdda0a89eb84dde4@ec2-176-34-215-248.eu-west-1.compute.amazonaws.com:5432/d15j4vkuqikc2c"]
 
-conn = psycopg2.connect(DATABASE_URL, sslmode="require")
-cur = conn.cursor()
+#conn = psycopg2.connect(DATABASE_URL, sslmode="require")
+#cur = conn.cursor()
 
 args = reqparse.RequestParser()
 args.add_argument("barcode", type=int, help="barcode number")
@@ -48,8 +48,8 @@ class ProductInfo(Resource):
         arg = args.parse_args()
         if True:  # (sha256(arg["key"]) == secrets.key):
 
-            #conn = sqlite3.connect("Barcodes.sql")
-            #cur = conn.cursor()
+            conn = psycopg2.connect(DATABASE_URL, sslmode="require")
+            cur = conn.cursor()
 
             data = cur.execute(f'SELECT id FROM barcodes WHERE barcode={arg["barcode"]}')
             ids = dict()
@@ -88,8 +88,8 @@ def hello():
 @app.route('/api/v1/products/<int:barcode>')
 def barcode_info(barcode):
     if True:  # sha256(arg["key"]) == key.key:
-        #conn = sqlite3.connect("Barcodes.sql")
-        #cur = conn.cursor()
+        conn = psycopg2.connect(DATABASE_URL, sslmode="require")
+        cur = conn.cursor()
 
         data = cur.execute(f'SELECT id FROM barcodes WHERE barcode = {barcode}')
         products = data.fetchall()
