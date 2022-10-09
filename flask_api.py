@@ -69,7 +69,8 @@ api.add_resource(ProductInfo, "/api/v1")
 
 @app.route('/')
 def hello():
-    return flask.send_file("files/APIVersion1specification.pdf")
+    return "test"#flask.send_file("files/APIVersion1specification.pdf")
+
 
 @app.route('/api/v1/products/<int:barcode>')
 def barcode_info(barcode):
@@ -86,7 +87,6 @@ def barcode_info(barcode):
         return "broken"
         conn.close()
         abort(400)
-
 
 
 if __name__ == "__main__":
