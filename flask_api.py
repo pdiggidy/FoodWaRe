@@ -12,29 +12,29 @@ api = Api(app)
 args = reqparse.RequestParser()
 args.add_argument("barcode", type=int, help="barcode number")
 args.add_argument("id", type=str)
-args.add_argument("key", type=int, required=True)
+args.add_argument("key", type=int)
 
 
 class ProductInfo(Resource):
-    def get(self):
-        arg = args.parse_args()
-        if True:  # sha256(arg["key"]) == key.key:
-            conn = sqlite3.connect("Barcodes.sql")
-            cur = conn.cursor()
-
-            data = cur.execute(f'SELECT * FROM barcodes WHERE barcode = {int(arg["barcode"])}')
-            products = data.fetchall()
-            products=list(products)[0]
-            conn.close()
-            try:
-                return {'barcode': arg["barcode"], "products": {"id": products[2], "certainty": products[3]}}, 200
-            except IndexError as e:
-                return "broken"
-                conn.close()
-                abort(400)
-
-        else:
-            abort(401)
+    # def get(self):
+    #     arg = args.parse_args()
+    #     if True:  # sha256(arg["key"]) == key.key:
+    #         conn = sqlite3.connect("Barcodes.sql")
+    #         cur = conn.cursor()
+    #
+    #         data = cur.execute(f'SELECT * FROM barcodes WHERE barcode = {int(arg["barcode"])}')
+    #         products = data.fetchall()
+    #         products=list(products)[0]
+    #         conn.close()
+    #         try:
+    #             return {'barcode': arg["barcode"], "products": {"id": products[2], "certainty": products[3]}}, 200
+    #         except IndexError as e:
+    #             return "broken"
+    #             conn.close()
+    #             abort(400)
+    #
+    #     else:
+    #         abort(401)
 
     def post(self):
         arg = args.parse_args()
@@ -70,6 +70,23 @@ api.add_resource(ProductInfo, "/api/v1")
 @app.route('/')
 def hello():
     return flask.send_file("files/APIVersion1specification.pdf")
+
+@app.route('/api/v1/<int:barcode>')
+def barcode_info(barcode):
+    conn = sqlite3.connect("Barcodes.sql")
+    cur = conn.cursor()
+
+    data = cur.execute(f'SELECT * FROM barcodes WHERE barcode = {int(barcode)}')
+    products = data.fetchall()
+    products = list(products)[0]
+    conn.close()
+    try:
+        return {'barcode': barcode, "products": {"id": products[2], "certainty": products[3]}}, 200
+    except IndexError as e:
+        return "broken"
+        conn.close()
+        abort(400)
+
 
 
 if __name__ == "__main__":
