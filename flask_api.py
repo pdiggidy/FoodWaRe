@@ -70,8 +70,12 @@ class ProductInfo(Resource):
                 return {"barcode": arg['barcode'], "id": arg["id"], "quantity": arg["quanitity"]}, 200
             except:
                 id_dict = {arg["id"]: 1}
-                cur.execute(
-                    f'''INSERT INTO barcodes (barcode, id, quantity) VALUES ({arg["barcode"]},'{json.dumps(id_dict)}', {arg["quantity"]})''')
+                if arg["quanity"] is not None:
+                    cur.execute(
+                        f'''INSERT INTO barcodes (barcode, id, quantity) VALUES ({arg["barcode"]},'{json.dumps(id_dict)}', {arg["quantity"]})''')
+                else:
+                    cur.execute(
+                        f'''INSERT INTO barcodes (barcode, id) VALUES ({arg["barcode"]},'{json.dumps(id_dict)}')''')
                 conn.commit()
                 conn.close()
                 return {"barcode": arg['barcode'], "id": arg["id"], "quantity": arg["quanitity"]}, 200
