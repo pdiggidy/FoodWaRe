@@ -67,7 +67,7 @@ class ProductInfo(Resource):
                 cur.execute(query)
                 conn.commit()
                 conn.close()
-                return {"barcode": arg['barcode'], "id": arg["id"], "quantity": arg["quanitity"]}, 200
+                return {"barcode": arg['barcode'], "id": arg["id"], "quantity": arg["quantity"]}, 200
             except:
                 id_dict = {arg["id"]: 1}
                 if arg["quantity"] is not None:
