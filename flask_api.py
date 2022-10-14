@@ -68,7 +68,7 @@ class ProductInfo(Resource):
                 conn.commit()
                 conn.close()
                 return {"barcode": arg['barcode'], "id": arg["id"], "quantity": arg["quantity"]}, 200
-            except:
+            except psycopg2.errors.UniqueViolation:
                 id_dict = {arg["id"]: 1}
                 if arg["quantity"] is not None:
                     cur.execute(
