@@ -54,7 +54,7 @@ class ProductInfo(Resource):
 
             cur.execute(f'SELECT id FROM barcodes WHERE barcode={arg["barcode"]}')
             ids = dict()
-
+            data= cur.fetchall()
             try:
                 id_dict = {arg["id"]: 1}
                 if arg["quantity"] is not None:
@@ -67,7 +67,7 @@ class ProductInfo(Resource):
                 conn.close()
                 return {"barcode": arg['barcode'], "id": arg["id"], "quantity": arg["quantity"]}, 200
             except:
-                for s in cur.fetchall():
+                for s in data:
                     s = json.loads(s[0])
                     ids[list(s.keys())[0]] = list(s.values())[0]
                 try:
