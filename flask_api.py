@@ -96,23 +96,22 @@ def barcode_info(barcode):
 
         cur.execute(f'SELECT id, quantity FROM barcodes WHERE barcode = {barcode}')
         products = cur.fetchall()
-        # try:
-        #     products = list(products)[0]
-        # except IndexError as e:
-        #     conn.close()
-        #     return "Barcode does not exist", 400
-        # ids = {}
-        # for s in products:
-        #     try:
-        #         s = json.loads(s)
-        #         ids[list(s.keys())[0]] = list(s.values())[0]
-        #     except json.JSONDecodeError as e:
-        #         return s
-        # amount = products[1]
-        # id_list = [f'{{{k}}}:{value}' for k, value in ids.items()]
+        try:
+            products = list(products)[0]
+        except IndexError as e:
+            conn.close()
+            return "Barcode does not exist", 400
+        ids = {}
+        try:
+            s = json.loads(products[0][0])
+            ids[list(s.keys())[0]] = list(s.values())[0]
+        except json.JSONDecodeError as e:
+            return products
+        amount = products[0][1]
+        id_list = [f'{{{k}}}:{value}' for k, value in ids.items()]
         conn.close()
-        return products
-        #return {"barcode": barcode, "products": json.dumps(ids), "amount": amount}, 200
+        #return products
+        return {"barcode": barcode, "products": json.dumps(ids), "amount": amount}, 200
 
 
 if __name__ == "__main__":
