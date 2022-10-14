@@ -67,6 +67,7 @@ class ProductInfo(Resource):
                 conn.close()
                 return {"barcode": arg['barcode'], "id": arg["id"], "quantity": arg["quantity"]}, 200
             except:
+                conn.commit()
                 for s in data:
                     s = json.loads(s[0])
                     ids[list(s.keys())[0]] = list(s.values())[0]
