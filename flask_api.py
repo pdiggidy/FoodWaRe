@@ -56,6 +56,17 @@ class ProductInfo(Resource):
             ids = dict()
 
             try:
+                id_dict = {arg["id"]: 1}
+                if arg["quantity"] is not None:
+                    cur.execute(
+                        f'''INSERT INTO barcodes (barcode, id, quantity) VALUES ({arg["barcode"]},'{json.dumps(id_dict)}', {arg["quantity"]})''')
+                else:
+                    cur.execute(
+                        f'''INSERT INTO barcodes (barcode, id) VALUES ({arg["barcode"]},'{json.dumps(id_dict)}')''')
+                conn.commit()
+                conn.close()
+                return {"barcode": arg['barcode'], "id": arg["id"], "quantity": arg["quantity"]}, 200
+            except:
                 for s in cur.fetchall():
                     s = json.loads(s[0])
                     ids[list(s.keys())[0]] = list(s.values())[0]
@@ -65,17 +76,6 @@ class ProductInfo(Resource):
                     ids[str(arg["id"])] = 1
                 query = f'''UPDATE barcodes SET id='{json.dumps(ids)}' WHERE barcode = {arg["barcode"]}'''
                 cur.execute(query)
-                conn.commit()
-                conn.close()
-                return {"barcode": arg['barcode'], "id": arg["id"], "quantity": arg["quantity"]}, 200
-            except:
-                id_dict = {arg["id"]: 1}
-                if arg["quantity"] is not None:
-                    cur.execute(
-                        f'''INSERT INTO barcodes (barcode, id, quantity) VALUES ({arg["barcode"]},'{json.dumps(id_dict)}', {arg["quantity"]})''')
-                else:
-                    cur.execute(
-                        f'''INSERT INTO barcodes (barcode, id) VALUES ({arg["barcode"]},'{json.dumps(id_dict)}')''')
                 conn.commit()
                 conn.close()
                 return {"barcode": arg['barcode'], "id": arg["id"], "quantity": arg["quantity"]}, 200
