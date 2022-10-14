@@ -63,7 +63,6 @@ class ProductInfo(Resource):
                     ids[str(arg["id"])] = ids[str(arg["id"])] + 1
                 except KeyError as e:
                     ids[str(arg["id"])] = 1
-                if arg["quantity"] is not None:
                     query = f'''UPDATE barcodes SET id='{json.dumps(ids)}' WHERE barcode = {arg["barcode"]}'''
                 cur.execute(query)
                 conn.commit()
