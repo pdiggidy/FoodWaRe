@@ -56,8 +56,8 @@ class ProductInfo(Resource):
             ids = dict()
 
             try:
-                for s in cur.fetchall():
-                    s = json.loads(s[0])
+                for s in cur.fetchall()[0]:
+                    s = json.loads(s)
                     ids[list(s.keys())[0]] = list(s.values())[0]
                 try:
                     ids[str(arg["id"])] = ids[str(arg["id"])] + 1
