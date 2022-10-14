@@ -103,10 +103,10 @@ def barcode_info(barcode):
             return "Barcode does not exist", 400
         ids = {}
         try:
-            s = json.loads(products[0][0])
+            s = json.loads(products[0])
             ids[list(s.keys())[0]] = list(s.values())[0]
         except json.JSONDecodeError as e:
-            return f"{type(products[0])}"
+            return f"Broken, Data: {cur.fetchall()}"
         amount = products[0][1]
         id_list = [f'{{{k}}}:{value}' for k, value in ids.items()]
         conn.close()
