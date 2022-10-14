@@ -21,7 +21,7 @@ args = reqparse.RequestParser()
 args.add_argument("barcode", type=int, help="barcode number")
 args.add_argument("id", type=str)
 args.add_argument("key", type=int, required=True)
-args.add_argument("amount", type=int)
+args.add_argument("quantity", type=int)
 
 
 class ProductInfo(Resource):
@@ -47,7 +47,7 @@ class ProductInfo(Resource):
 
     def post(self):
         arg = args.parse_args()
-        if True:  # (sha256(arg["key"]) == secrets.key):
+        if (sha256(arg["key"]) == key.key):
 
             conn = psycopg2.connect(DATABASE_URL, sslmode="require")
             cur = conn.cursor()
@@ -67,14 +67,14 @@ class ProductInfo(Resource):
                 cur.execute(query)
                 conn.commit()
                 conn.close()
-                return {"barcode": arg['barcode'], "id": arg["id"]}, 200
+                return {"barcode": arg['barcode'], "id": arg["id"], "quantity": arg["quanitity"]}, 200
             except:
                 id_dict = {arg["id"]: 1}
                 cur.execute(
-                    f'''INSERT INTO barcodes (barcode, id, quantity) VALUES ({arg["barcode"]},'{json.dumps(id_dict)}', {arg["amount"]})''')
+                    f'''INSERT INTO barcodes (barcode, id, quantity) VALUES ({arg["barcode"]},'{json.dumps(id_dict)}', {arg["quantity"]})''')
                 conn.commit()
                 conn.close()
-                return {"barcode": arg['barcode'], "id": arg["id"], "quantity": arg["amount"]}, 200
+                return {"barcode": arg['barcode'], "id": arg["id"], "quantity": arg["quanitity"]}, 200
 
         else:
             abort(401)
@@ -90,27 +90,26 @@ def hello():
 
 @app.route('/api/v1/products/<int:barcode>')
 def barcode_info(barcode):
-    if True:  # sha256(arg["key"]) == key.key:
-        conn = psycopg2.connect(DATABASE_URL, sslmode="require")
-        cur = conn.cursor()
+    conn = psycopg2.connect(DATABASE_URL, sslmode="require")
+    cur = conn.cursor()
 
-        cur.execute(f'SELECT id, quantity FROM barcodes WHERE barcode = {barcode}')
-        products = cur.fetchall()
-        try:
-            products = list(products)[0]
-        except IndexError as e:
-            conn.close()
-            return "Barcode does not exist", 400
-        ids = {}
-        try:
-            s = json.loads(products[0])
-            ids[list(s.keys())[0]] = list(s.values())[0]
-        except json.JSONDecodeError as e:
-            return f"Broken, Data: {cur.fetchall()}"
-        amount = products[1]
-        id_list = [f'{{{k}}}:{value}' for k, value in ids.items()]
+    cur.execute(f'SELECT id, quantity FROM barcodes WHERE barcode = {barcode}')
+    products = cur.fetchall()
+    try:
+        products = list(products)[0]
+    except IndexError as e:
         conn.close()
-        return {"barcode": barcode, "products": json.dumps(id_list), "quantity": amount}, 200
+        return "Barcode does not exist", 400
+    ids = {}
+    try:
+        s = json.loads(products[0])
+        ids[list(s.keys())[0]] = list(s.values())[0]
+    except json.JSONDecodeError as e:
+        return f"Broken, Data: {cur.fetchall()}"
+    amount = products[1]
+    id_list = [f'{{{k}:{value}}}' for k, value in ids.items()]
+    conn.close()
+    return {"barcode": barcode, "products": json.dumps(id_list), "quantity": amount}, 200
 
 
 if __name__ == "__main__":
