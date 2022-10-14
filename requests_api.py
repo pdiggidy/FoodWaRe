@@ -12,9 +12,9 @@ import pandas as pd
 
 
 barcode= 871039852411
-print(req.get(f"https://foodware-backend.herokuapp.com/api/v1/products/{barcode}").json())#, data=json.dumps({"barcode": 871039852411, "key": 1}), headers={'content-type': 'application/json'}).json())
+#print(req.get(f"https://foodware-backend.herokuapp.com/api/v1/products/{barcode}").json())#, data=json.dumps({"barcode": 871039852411, "key": 1}), headers={'content-type': 'application/json'}).json())
 
-# print(req.post("https://foodware-backend.herokuapp.com//api/v1", data=json.dumps({"barcode": 26772226, "id":"1", "key":1}), headers={'content-type': 'application/json'}).text)
+print(req.post("https://foodware-backend.herokuapp.com//api/v1", data=json.dumps({"barcode": 1111, "id":"1","amount":100, "key":1}), headers={'content-type': 'application/json'}).text)
 #print(req.post("http://127.0.0.1:5000/api/v1", data=json.dumps({"barcode": 871039852411, "key": 1, "id":17}), headers={'content-type': 'application/json'}).json())
 #
 # d= {"barcode":[871039852411],"id":["17"],"certainty":[1]}
