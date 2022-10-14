@@ -20,7 +20,7 @@ DATABASE_URL = "postgres://fwahrxcyduwmlg:a7b249158e16deb53ce3127fa7f713ecb2264d
 args = reqparse.RequestParser()
 args.add_argument("barcode", type=int, help="barcode number")
 args.add_argument("id", type=str)
-args.add_argument("key", type=int, required=True)
+args.add_argument("key", type=str, required=True)
 args.add_argument("quantity", type=int)
 
 
