@@ -47,7 +47,7 @@ class ProductInfo(Resource):
 
     def post(self):
         arg = args.parse_args()
-        if (sha256(arg["key"]) == key.key):
+        if arg["key"] == key.key:
 
             conn = psycopg2.connect(DATABASE_URL, sslmode="require")
             cur = conn.cursor()
