@@ -63,7 +63,7 @@ class ProductInfo(Resource):
                     ids[str(arg["id"])] = ids[str(arg["id"])] + 1
                 except KeyError as e:
                     ids[str(arg["id"])] = 1
-                query = f'''UPDATE barcodes SET id='{json.dumps(ids)}', amount={arg["amount"]} WHERE barcode = {arg["barcode"]}'''
+                query = f'''UPDATE barcodes SET id='{json.dumps(ids)}', quantity={arg["amount"]} WHERE barcode = {arg["barcode"]}'''
                 cur.execute(query)
                 conn.commit()
                 conn.close()
@@ -71,10 +71,10 @@ class ProductInfo(Resource):
             except:
                 id_dict = {arg["id"]: 1}
                 cur.execute(
-                    f'''INSERT INTO barcodes (barcode, id) VALUES ({arg["barcode"]},'{json.dumps(id_dict)}')''')
+                    f'''INSERT INTO barcodes (barcode, id, quantity) VALUES ({arg["barcode"]},'{json.dumps(id_dict)}', {arg["amount"]})''')
                 conn.commit()
                 conn.close()
-                return {"barcode": arg['barcode'], "id": arg["id"]}, 200
+                return {"barcode": arg['barcode'], "id": arg["id"], "quantity": arg["amount"]}, 200
 
         else:
             abort(401)
@@ -110,7 +110,7 @@ def barcode_info(barcode):
         amount = products[1]
         id_list = [f'{{{k}}}:{value}' for k, value in ids.items()]
         conn.close()
-        return {"barcode": barcode, "products": json.dumps(id_list), "amount": amount}, 200
+        return {"barcode": barcode, "products": json.dumps(id_list), "quantity": amount}, 200
 
 
 if __name__ == "__main__":
