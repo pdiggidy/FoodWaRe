@@ -106,7 +106,7 @@ def barcode_info(barcode):
             s = json.loads(products[0][0])
             ids[list(s.keys())[0]] = list(s.values())[0]
         except json.JSONDecodeError as e:
-            return f"{type(products)}"
+            return f"{type(products[0])}"
         amount = products[0][1]
         id_list = [f'{{{k}}}:{value}' for k, value in ids.items()]
         conn.close()
