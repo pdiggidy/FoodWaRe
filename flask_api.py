@@ -78,7 +78,7 @@ class ProductInfo(Resource):
                         f'''INSERT INTO barcodes (barcode, id) VALUES ({arg["barcode"]},'{json.dumps(id_dict)}')''')
                 conn.commit()
                 conn.close()
-                return {"barcode": arg['barcode'], "id": arg["id"], "quantity": arg["quanitity"]}, 200
+                return {"barcode": arg['barcode'], "id": arg["id"], "quantity": arg["quantity"]}, 200
 
         else:
             abort(401)
