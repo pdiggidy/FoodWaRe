@@ -56,19 +56,19 @@ class ProductInfo(Resource):
             ids = dict()
 
             try:
-                for s in cur.fetchall()[0]:
-                    s = json.loads(s)
+                for s in cur.fetchall():
+                    s = json.loads(s[0])
                     ids[list(s.keys())[0]] = list(s.values())[0]
                 try:
                     ids[str(arg["id"])] = ids[str(arg["id"])] + 1
                 except KeyError as e:
                     ids[str(arg["id"])] = 1
-                query = f'''UPDATE barcodes SET id='{json.dumps(ids)}', quantity={arg["amount"]} WHERE barcode = {arg["barcode"]}'''
+                query = f'''UPDATE barcodes SET id='{json.dumps(ids)}', quantity={arg["quantity"]} WHERE barcode = {arg["barcode"]}'''
                 cur.execute(query)
                 conn.commit()
                 conn.close()
                 return {"barcode": arg['barcode'], "id": arg["id"], "quantity": arg["quantity"]}, 200
-            except psycopg2.errors.UniqueViolation:
+            except:
                 id_dict = {arg["id"]: 1}
                 if arg["quantity"] is not None:
                     cur.execute(
