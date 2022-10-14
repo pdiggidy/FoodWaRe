@@ -70,7 +70,7 @@ class ProductInfo(Resource):
                 return {"barcode": arg['barcode'], "id": arg["id"], "quantity": arg["quanitity"]}, 200
             except:
                 id_dict = {arg["id"]: 1}
-                if arg["quanity"] is not None:
+                if arg["quantity"] is not None:
                     cur.execute(
                         f'''INSERT INTO barcodes (barcode, id, quantity) VALUES ({arg["barcode"]},'{json.dumps(id_dict)}', {arg["quantity"]})''')
                 else:
