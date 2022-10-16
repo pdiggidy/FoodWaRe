@@ -106,7 +106,7 @@ def barcode_info(barcode):
     conn = psycopg2.connect(DATABASE_URL, sslmode="require")
     cur = conn.cursor()
 
-    cur.execute(f'SELECT idFROM barcodes WHERE barcode = {barcode}')
+    cur.execute(f'SELECT id FROM barcodes WHERE barcode = {barcode}')
     products = cur.fetchall()
     try:
         products = list(products)[0]
