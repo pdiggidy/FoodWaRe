@@ -49,6 +49,7 @@ def update_values(old, new, barcode):
 
 
 class ProductInfo(Resource):
+
     def post(self):
         arg = args.parse_args()
         if arg["key"] == key.key:
