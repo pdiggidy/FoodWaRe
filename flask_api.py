@@ -114,6 +114,7 @@ def barcode_info(barcode):
         return f"Broken, Data: {cur.fetchall()}"
     amount = products[1]
     id_list = [f'{{{k}:{value}}}' for k, value in ids.items()]
+    id_list = [json.loads(x) for x in id_list]
     conn.close()
     return {"barcode": barcode, "products": id_list, "quantity": amount}, 200
 
