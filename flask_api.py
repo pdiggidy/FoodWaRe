@@ -44,7 +44,7 @@ def update_values(old, new, barcode):
         return f'''UPDATE barcodes SET id='{json.dumps(id_dicts)}' WHERE barcode={barcode}'''
     elif first:
         id_dicts = new | {"certainty": 1}
-        return f'''INSERT INTO barcodes (barcode, id) VALUES ({barcode}, [{json.dumps(id_dicts)}])'''
+        return f'''INSERT INTO barcodes (barcode, id) VALUES ({barcode}, '[{json.dumps(id_dicts)}]')'''
 
 
 class ProductInfo(Resource):
