@@ -106,14 +106,14 @@ def barcode_info(barcode):
     conn = psycopg2.connect(DATABASE_URL, sslmode="require")
     cur = conn.cursor()
 
-    cur.execute(f'SELECT id, quantity FROM barcodes WHERE barcode = {barcode}')
+    cur.execute(f'SELECT idFROM barcodes WHERE barcode = {barcode}')
     products = cur.fetchall()
     try:
         products = list(products)[0]
     except IndexError as e:
         conn.close()
         return "Barcode does not exist", 400
-    id_list = products
+    id_list = products[0]
     conn.close()
     return {"barcode": barcode, "products": id_list}, 200
 
