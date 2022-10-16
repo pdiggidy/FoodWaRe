@@ -18,7 +18,7 @@ DATABASE_URL = "postgres://fwahrxcyduwmlg:a7b249158e16deb53ce3127fa7f713ecb2264d
 # cur = conn.cursor()
 
 args = reqparse.RequestParser()
-args.add_argument("barcode", type=int, help="barcode number")
+args.add_argument("barcode", type=str, help="barcode number")
 args.add_argument("id", type=str)
 args.add_argument("key", type=str, required=True)
 args.add_argument("quantity", type=int)
@@ -36,7 +36,7 @@ class ProductInfo(Resource):
     #         products=list(products)[0]
     #         conn.close()
     #         try:
-    #             return {'barcode': arg["barcode"], "products": {"id": products[2], "certainty": products[3]}}, 200
+    #             return {'barcode': int(arg['barcode"]), "products": {"id": products[2], "certainty": products[3]}}, 200
     #         except IndexError as e:
     #             return "broken"
     #             conn.close()
@@ -52,17 +52,17 @@ class ProductInfo(Resource):
             conn = psycopg2.connect(DATABASE_URL, sslmode="require")
             cur = conn.cursor()
 
-            cur.execute(f'SELECT id FROM barcodes WHERE barcode={arg["barcode"]}')
+            cur.execute(f'SELECT id FROM barcodes WHERE barcode={int(arg["barcode"])}')
             ids = dict()
             data= cur.fetchall()
             try:
                 id_dict = {arg["id"]: 1}
                 if arg["quantity"] is not None:
                     cur.execute(
-                        f'''INSERT INTO barcodes (barcode, id, quantity) VALUES ({arg["barcode"]},'{json.dumps(id_dict)}', {arg["quantity"]})''')
+                        f'''INSERT INTO barcodes (barcode, id, quantity) VALUES ({int(arg["barcode"])},'{json.dumps(id_dict)}', {arg["quantity"]})''')
                 else:
                     cur.execute(
-                        f'''INSERT INTO barcodes (barcode, id) VALUES ({arg["barcode"]},'{json.dumps(id_dict)}')''')
+                        f'''INSERT INTO barcodes (barcode, id) VALUES ({int(arg["barcode"])},'{json.dumps(id_dict)}')''')
                 conn.commit()
                 conn.close()
                 return {"barcode": arg['barcode'], "id": arg["id"], "quantity": arg["quantity"]}, 200
@@ -75,7 +75,7 @@ class ProductInfo(Resource):
                     ids[str(arg["id"])] = ids[str(arg["id"])] + 1
                 except KeyError as e:
                     ids[str(arg["id"])] = 1
-                query = f'''UPDATE barcodes SET id='{json.dumps(ids)}' WHERE barcode = {arg["barcode"]}'''
+                query = f'''UPDATE barcodes SET id='{json.dumps(ids)}' WHERE barcode = {int(arg["barcode"])}'''
                 cur.execute(query)
                 conn.commit()
                 conn.close()
@@ -95,6 +95,7 @@ def hello():
 
 @app.route('/api/v1/products/<int:barcode>')
 def barcode_info(barcode):
+    barcode = int(barcode)
     conn = psycopg2.connect(DATABASE_URL, sslmode="require")
     cur = conn.cursor()
 
