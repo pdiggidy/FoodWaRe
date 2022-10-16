@@ -22,31 +22,28 @@ args.add_argument("barcode", type=str, help="barcode number")
 args.add_argument("id", type=str)
 args.add_argument("key", type=str, required=True)
 args.add_argument("quantity", type=int)
-#
-# def update_values(old, new, cursor):
+
+
+def update_values(old, new, cur, conn, barcode):
+    old = old[0]
+    id_dicts = []
+    for i in old:
+        id_dicts.append(json.loads(i))
+    found = False
+    for item in id_dicts:
+        if item["id"] == new["id"] and item["quantity"] == new["quantity"]:
+            item["certainty"] = item["certainty"] + 1
+            found = True
+            break
+    if not found:
+        id_dicts.append((new | {"certainty": 1}))
+    if len(id_dicts) == 1:
+        return f'''INSERT INTO barcodes (barcode, id) VALUES ({barcode}, "{id_dicts}")'''
+    elif len(id_dicts) > 1:
+        return f'''UPDATE barcodes SET id={id_dicts} WHERE barcode={barcode}'''
 
 
 class ProductInfo(Resource):
-    # def get(self):
-    #     arg = args.parse_args()
-    #     if True:  # sha256(arg["key"]) == key.key:
-    #         conn = sqlite3.connect("Barcodes.sql")
-    #         cur = conn.cursor()
-    #
-    #         data = cur.execute(f'SELECT * FROM barcodes WHERE barcode = {int(arg["barcode"])}')
-    #         products = data.fetchall()
-    #         products=list(products)[0]
-    #         conn.close()
-    #         try:
-    #             return {'barcode': int(arg['barcode"]), "products": {"id": products[2], "certainty": products[3]}}, 200
-    #         except IndexError as e:
-    #             return "broken"
-    #             conn.close()
-    #             abort(400)
-    #
-    #     else:
-    #         abort(401)
-
     def post(self):
         arg = args.parse_args()
         if arg["key"] == key.key:
@@ -56,32 +53,34 @@ class ProductInfo(Resource):
 
             cur.execute(f'SELECT id FROM barcodes WHERE barcode={int(arg["barcode"])}')
             ids = dict()
-            data= cur.fetchall()
-            try:
-                id_dict = {arg["id"]: 1}
-                if arg["quantity"] is not None:
-                    cur.execute(
-                        f'''INSERT INTO barcodes (barcode, id, quantity) VALUES ({int(arg["barcode"])},'{json.dumps(id_dict)}', {arg["quantity"]})''')
-                else:
-                    cur.execute(
-                        f'''INSERT INTO barcodes (barcode, id) VALUES ({int(arg["barcode"])},'{json.dumps(id_dict)}')''')
-                conn.commit()
-                conn.close()
-                return {"barcode": arg['barcode'], "id": arg["id"], "quantity": arg["quantity"]}, 200
-            except:
-                conn.commit()
-                for s in data:
-                    s = json.loads(s[0])
-                    ids[list(s.keys())[0]] = list(s.values())[0]
-                try:
-                    ids[str(arg["id"])] = ids[str(arg["id"])] + 1
-                except KeyError as e:
-                    ids[str(arg["id"])] = 1
-                query = f'''UPDATE barcodes SET id='{json.dumps(ids)}' WHERE barcode = {int(arg["barcode"])}'''
-                cur.execute(query)
-                conn.commit()
-                conn.close()
-                return {"barcode": arg['barcode'], "id": arg["id"], "quantity": arg["quantity"]}, 200
+            data = cur.fetchall()
+            new = {"id": arg["id"], "quantity": arg["quantity"]}
+            query = update_values(data, new, cur, conn, arg["barcode"])
+            # try:
+            #     id_dict = {arg["id"]: 1}
+            #     if arg["quantity"] is not None:
+            #         cur.execute(
+            #             f'''INSERT INTO barcodes (barcode, id, quantity) VALUES ({int(arg["barcode"])},'{json.dumps(id_dict)}', {arg["quantity"]})''')
+            #     else:
+            #         cur.execute(
+            #             f'''INSERT INTO barcodes (barcode, id) VALUES ({int(arg["barcode"])},'{json.dumps(id_dict)}')''')
+            #     conn.commit()
+            #     conn.close()
+            #     return {"barcode": arg['barcode'], "id": arg["id"], "quantity": arg["quantity"]}, 200
+            # except:
+            #     conn.commit()
+            #     for s in data:
+            #         s = json.loads(s[0])
+            #         ids[list(s.keys())[0]] = list(s.values())[0]
+            #     try:
+            #         ids[str(arg["id"])] = ids[str(arg["id"])] + 1
+            #     except KeyError as e:
+            #         ids[str(arg["id"])] = 1
+            #     query = f'''UPDATE barcodes SET id='{json.dumps(ids)}' WHERE barcode = {int(arg["barcode"])}'''
+            cur.execute(query)
+            conn.commit()
+            conn.close()
+            return {"barcode": arg['barcode'], "id": arg["id"], "quantity": arg["quantity"]}, 200
 
         else:
             abort(401)
