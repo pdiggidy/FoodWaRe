@@ -64,10 +64,10 @@ class ProductInfo(Resource):
             new = {"id": arg["id"], "quantity": arg["quantity"]}
             query = update_values(data, new, arg["barcode"])
 
-            cur.execute(query)
-            conn.commit()
+            #cur.execute(query)
+            #conn.commit()
             conn.close()
-            return {"barcode": arg['barcode'], "id": arg["id"], "quantity": arg["quantity"]}, 200
+            return query#{"barcode": arg['barcode'], "id": arg["id"], "quantity": arg["quantity"]}, 200
 
         else:
             abort(401)
