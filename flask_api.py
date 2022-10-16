@@ -42,7 +42,7 @@ def update_values(old, new, barcode):
                 break
         if not found:
             id_dicts.append((new | {"certainty": 1}))
-            return f'''UPDATE barcodes SET id='{json.dumps(id_dicts)}' WHERE barcode={barcode}'''
+        return f'''UPDATE barcodes SET id='{json.dumps(id_dicts)}' WHERE barcode={barcode}'''
     elif first:
         id_dicts = new | {"certainty": 1}
         return f'''INSERT INTO barcodes (barcode, id) VALUES ({barcode}, '{json.dumps(id_dicts)}')'''
