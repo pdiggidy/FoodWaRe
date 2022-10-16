@@ -18,8 +18,8 @@ DATABASE_URL = "postgres://fwahrxcyduwmlg:a7b249158e16deb53ce3127fa7f713ecb2264d
 # cur = conn.cursor()
 
 args = reqparse.RequestParser()
-args.add_argument("barcode", type=str, help="barcode number")
-args.add_argument("id", type=str)
+args.add_argument("barcode", type=str, help="barcode number", required=True)
+args.add_argument("id", type=str, required=True)
 args.add_argument("key", type=str, required=True)
 args.add_argument("quantity", type=int)
 
@@ -44,7 +44,7 @@ def update_values(old, new, barcode):
         return f'''UPDATE barcodes SET id='{json.dumps(id_dicts)}' WHERE barcode={barcode}'''
     elif first:
         id_dicts = new | {"certainty": 1}
-        return f'''INSERT INTO barcodes (barcode, id) VALUES ({barcode}, [{json.dumps(id_dicts)}]')'''
+        return f'''INSERT INTO barcodes (barcode, id) VALUES ({barcode}, '[{json.dumps(id_dicts)}]')'''
 
 
 class ProductInfo(Resource):
