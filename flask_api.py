@@ -36,7 +36,6 @@ def update_values(old, new, barcode):
             id_dicts.append(json.loads(i))
         found = False
         for item in id_dicts[0]:
-            return item
             if item["id"] == new["id"] and item["quantity"] == new["quantity"]:
                 item["certainty"] = item["certainty"] + 1
                 found = True
@@ -64,10 +63,10 @@ class ProductInfo(Resource):
             new = {"id": arg["id"], "quantity": arg["quantity"]}
             query = update_values(data, new, arg["barcode"])
 
-            #cur.execute(query)
-            #conn.commit()
+            cur.execute(query)
+            conn.commit()
             conn.close()
-            return query#{"barcode": arg['barcode'], "id": arg["id"], "quantity": arg["quantity"]}, 200
+            return {"barcode": arg['barcode'], "id": arg["id"], "quantity": arg["quantity"]}, 200
 
         else:
             abort(401)
