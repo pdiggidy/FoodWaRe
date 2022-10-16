@@ -32,10 +32,10 @@ def update_values(old, new, barcode):
         first = True
     if not first:
         id_dicts = []
-        for i in old[0]:
+        for i in old:
             id_dicts.append(json.loads(i))
         found = False
-        for item in id_dicts:
+        for item in id_dicts[0]:
             return item
             if item["id"] == new["id"] and item["quantity"] == new["quantity"]:
                 item["certainty"] = item["certainty"] + 1
