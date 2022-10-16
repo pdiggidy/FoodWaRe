@@ -29,7 +29,7 @@ def update_values(old, new, barcode):
     try:
         old = old[0]
     except IndexError as e:
-        new = True
+        first = True
     if not first:
         id_dicts = []
         for i in old:
