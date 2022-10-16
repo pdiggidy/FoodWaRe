@@ -36,6 +36,7 @@ def update_values(old, new, barcode):
             id_dicts.append(json.loads(i))
         found = False
         for item in id_dicts:
+            return item
             if item["id"] == new["id"] and item["quantity"] == new["quantity"]:
                 item["certainty"] = item["certainty"] + 1
                 found = True
@@ -62,27 +63,7 @@ class ProductInfo(Resource):
             data = cur.fetchall()
             new = {"id": arg["id"], "quantity": arg["quantity"]}
             query = update_values(data, new, arg["barcode"])
-            # try:
-            #     id_dict = {arg["id"]: 1}
-            #     if arg["quantity"] is not None:
-            #         cur.execute(
-            #             f'''INSERT INTO barcodes (barcode, id, quantity) VALUES ({int(arg["barcode"])},'{json.dumps(id_dict)}', {arg["quantity"]})''')
-            #     else:
-            #         cur.execute(
-            #             f'''INSERT INTO barcodes (barcode, id) VALUES ({int(arg["barcode"])},'{json.dumps(id_dict)}')''')
-            #     conn.commit()
-            #     conn.close()
-            #     return {"barcode": arg['barcode'], "id": arg["id"], "quantity": arg["quantity"]}, 200
-            # except:
-            #     conn.commit()
-            #     for s in data:
-            #         s = json.loads(s[0])
-            #         ids[list(s.keys())[0]] = list(s.values())[0]
-            #     try:
-            #         ids[str(arg["id"])] = ids[str(arg["id"])] + 1
-            #     except KeyError as e:
-            #         ids[str(arg["id"])] = 1
-            #     query = f'''UPDATE barcodes SET id='{json.dumps(ids)}' WHERE barcode = {int(arg["barcode"])}'''
+
             cur.execute(query)
             conn.commit()
             conn.close()
