@@ -25,22 +25,27 @@ args.add_argument("quantity", type=int)
 
 
 def update_values(old, new, barcode):
-    old = old[0]
-    id_dicts = []
-    for i in old:
-        id_dicts.append(json.loads(i))
-    found = False
-    for item in id_dicts:
-        if item["id"] == new["id"] and item["quantity"] == new["quantity"]:
-            item["certainty"] = item["certainty"] + 1
-            found = True
-            break
-    if not found:
-        id_dicts.append((new | {"certainty": 1}))
-    if len(id_dicts) == 1:
+    first = False
+    try:
+        old = old[0]
+    except IndexError as e:
+        new = True
+    if not first:
+        id_dicts = []
+        for i in old:
+            id_dicts.append(json.loads(i))
+        found = False
+        for item in id_dicts:
+            if item["id"] == new["id"] and item["quantity"] == new["quantity"]:
+                item["certainty"] = item["certainty"] + 1
+                found = True
+                break
+        if not found:
+            id_dicts.append((new | {"certainty": 1}))
+            return f'''UPDATE barcodes SET id={id_dicts} WHERE barcode={barcode}'''
+    elif first:
+        id_dicts = new | {"certainty": 1}
         return f'''INSERT INTO barcodes (barcode, id) VALUES ({barcode}, "{id_dicts}")'''
-    elif len(id_dicts) > 1:
-        return f'''UPDATE barcodes SET id={id_dicts} WHERE barcode={barcode}'''
 
 
 class ProductInfo(Resource):
