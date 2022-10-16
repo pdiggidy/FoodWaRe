@@ -22,6 +22,8 @@ args.add_argument("barcode", type=str, help="barcode number")
 args.add_argument("id", type=str)
 args.add_argument("key", type=str, required=True)
 args.add_argument("quantity", type=int)
+#
+# def update_values(old, new, cursor):
 
 
 class ProductInfo(Resource):
@@ -113,7 +115,7 @@ def barcode_info(barcode):
     except json.JSONDecodeError as e:
         return f"Broken, Data: {cur.fetchall()}"
     amount = products[1]
-    id_list = [f'{{{k}:{value}}}' for k, value in ids.items()]
+    id_list = [f'{{"{k}":{value}}}' for k, value in ids.items()]
     id_list = [json.loads(x) for x in id_list]
     conn.close()
     return {"barcode": barcode, "products": id_list, "quantity": amount}, 200
