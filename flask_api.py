@@ -24,7 +24,7 @@ args.add_argument("key", type=str, required=True)
 args.add_argument("quantity", type=int)
 
 
-def update_values(old, new, cur, conn, barcode):
+def update_values(old, new, barcode):
     old = old[0]
     id_dicts = []
     for i in old:
@@ -55,7 +55,7 @@ class ProductInfo(Resource):
             ids = dict()
             data = cur.fetchall()
             new = {"id": arg["id"], "quantity": arg["quantity"]}
-            query = update_values(data, new, cur, conn, arg["barcode"])
+            query = update_values(data, new, arg["barcode"])
             # try:
             #     id_dict = {arg["id"]: 1}
             #     if arg["quantity"] is not None:
